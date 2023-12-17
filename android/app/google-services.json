@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "5801025930",
+    "project_id": "mynotes4-flutter-takuyasaka",
+    "storage_bucket": "mynotes4-flutter-takuyasaka.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:5801025930:android:fcd9521c4e1e33ccd96873",
+        "android_client_info": {
+          "package_name": "com.takuyasaka.mynotes4"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDren_0RvL0k00qwXVt_-u3tj3QI9PPBvc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
