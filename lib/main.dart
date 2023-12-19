@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:mynotes4/firebase_options.dart';
 import 'package:mynotes4/views/login_view.dart';
 import 'package:mynotes4/views/register_view.dart';
+import 'package:mynotes4/views/verify_email_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,19 +47,30 @@ class HomePage extends StatelessWidget {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
             // if a future is done, this is execute.
-            // final user = FirebaseAuth.instance.currentUser;
-            // print(user);
-            // if (user?.emailVerified ?? false) {
-            //   return const Text('Done');
+            final user =
+                FirebaseAuth.instance.currentUser; // get the current user.
+            if (user != null) {
+              if (user.emailVerified) {
+                return const Text(
+                    'Email is verified'); // if the user is not null and the user is verified, it prints out email is verified.
+              } else {
+                return const VerifyEmailView(); // if the user is not null and the user is not verified, it returns VerifyEmailView.
+              }
+            } else {
+              return const LoginView(); // if the user is null, it returns LoginView.
+            } // Upon the firebase initialisation being done succefully, checks the current user. If the current user is already logged in and verified, it returns done.
+          // print(user);
+          // if (user?.emailVerified ?? false) {
+          //   return const Text('Done');
 
-            //   // this means if the left hand side (user?.emailVerified) is not true, take the right hand side (false).
-            // } else {
-            //   return const VerifyEmailView();
-            //   //  this creates Navigator (class) and tells Navigator to push something on the screen.
-            //   // Then we say, create MaterialPageRoute to push.
-            //   // MaterialPageRoute has an argument called builder, which expects a widget.
-            // }
-            return const LoginView();
+          //   // this means if the left hand side (user?.emailVerified) is not true, take the right hand side (false).
+          // } else {
+          //   return const VerifyEmailView();
+          //   //  this creates Navigator (class) and tells Navigator to push something on the screen.
+          //   // Then we say, create MaterialPageRoute to push.
+          //   // MaterialPageRoute has an argument called builder, which expects a widget.
+          // }
+          // return const LoginView();
           // checks if the current user is logged in.
           // anonymous  users are those who have not come to the website yet.
           // user.emailVerified causes an error because user is a optional user, which means that .currentUser property is a optional user.
