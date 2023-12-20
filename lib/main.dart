@@ -7,9 +7,13 @@ import 'package:mynotes4/firebase_options.dart';
 import 'package:mynotes4/views/login_view.dart';
 import 'package:mynotes4/views/register_view.dart';
 import 'package:mynotes4/views/verify_email_view.dart';
+import 'dart:developer' as devtools show log;
+// import statements are configureable. There are many functions that you don't need and you can see all functions by pressing ctrl and space.
+// Hence, use as and show to limit the package you import and use functions you actually need.
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   runApp(MaterialApp(
     title: 'Flutter Demo',
     theme: ThemeData(
@@ -51,14 +55,14 @@ class HomePage extends StatelessWidget {
                 FirebaseAuth.instance.currentUser; // get the current user.
             if (user != null) {
               if (user.emailVerified) {
-                return const Text(
-                    'Email is verified'); // if the user is not null and the user is verified, it prints out email is verified.
+                return const NotesView(); // if the user is not null (i.e., the user is present) and the user is verified, it prints out email is verified.
               } else {
                 return const VerifyEmailView(); // if the user is not null and the user is not verified, it returns VerifyEmailView.
               }
             } else {
               return const LoginView(); // if the user is null, it returns LoginView.
-            } // Upon the firebase initialisation being done succefully, checks the current user. If the current user is already logged in and verified, it returns done.
+            }
+          // return const Text('Done'); // Upon the firebase initialisation being done succefully, checks the current user. If the current user is already logged in and verified, it returns done.
           // print(user);
           // if (user?.emailVerified ?? false) {
           //   return const Text('Done');
@@ -88,6 +92,90 @@ class HomePage extends StatelessWidget {
   }
 }
 
+enum MenuAction { logout }
+
+// main UI that the user who logged in can see.
+class NotesView extends StatefulWidget {
+  const NotesView({super.key});
+
+  @override
+  State<NotesView> createState() => _NotesViewState();
+}
+
+class _NotesViewState extends State<NotesView> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Main UI'),
+        actions: [
+          PopupMenuButton<MenuAction>(
+            onSelected: (value) async {
+              switch (value) {
+                case MenuAction.logout:
+                  final shouldLogout = await showLogOutDialog(context);
+                  devtools.log(shouldLogout.toString());
+                  if (shouldLogout) {
+                    await FirebaseAuth.instance.signOut();
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/login/',
+                      (_) => false,
+                    );
+                  } // if the user presses cancel, it returns false, if the user presses logout, it returns true.
+              }
+              // devtools.log(value.toString()); // log takes String so you need to covert value to String.
+            },
+            itemBuilder: (context) {
+              // hover your mouse over itemBuilder. You can see itemBuilder is required to return List.
+              return const [
+                PopupMenuItem<MenuAction>(
+                  value: MenuAction.logout, // that's what programmers can see
+                  child: Text('Log out'), // that's what users can see
+                ), // when popupmenuitem is tapped, it passes value onto popupmenubutton.
+              ];
+            },
+          ), // upon selected (onSelected), it returns value for us.
+        ], // actions is a list of widgets.
+      ),
+    );
+  }
+}
+
+Future<bool> showLogOutDialog(BuildContext context) {
+  return showDialog<bool>(
+          // showDialog returns a future of optional value. In other words, it returns a future, and it's optional.
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              // AlertDialog is to create a dialog. showDialog is to display a dialog.
+              title: const Text('Sign out'),
+              content: const Text('Are you sure you want to sign out?'),
+              actions: [
+                // actions is a list of TextButtons typically.
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(
+                        false); // to close the dialog and pass a boolean value ('false' for cancel and 'true' for logout) to the future.
+                    // Navigator is a class that manages a stack of routes and provides methods to navigate between them. A route represents a screen or page in your app, and the stack maintains the order in which screens are displayed.
+                  }, // The pop method is used to remove the topmost route from the navigation stack. It effectively closes the current screen or dialog and returns control to the previous screen.
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text('Log out'),
+                )
+              ],
+            );
+          })
+      .then((value) =>
+          value ??
+          false); // .then says if showDialog cannot return bool, i am going to return false; otherwise return the value of showDialog.
+  // users may tap outside of the dialog to dissmiss it. This is why showDialogue says I might not be able to return the value that I promised. So, .then is used.
+} // dialog is a small popup window that usually displays in the centre of screen.
+// In this case, you need the user to select either they want to log out or remain logged in.
+// Hence, future boolean is suited for this.
 
 // named routes vs anonymous routes
 // routes are a journey. it has a start view and end view.
@@ -106,3 +194,15 @@ class HomePage extends StatelessWidget {
 // If you save your code in Git, nobody else can see and modify it.
 // If you want to share your code with other people and want to collaborate with them and want to be able to commit to it in the sourcecode,
 // you can share it in GitHub.
+// git log
+// git status is to display the status of your working direcotry and staging area with respect to the git repository.
+// staging area (a.k.a. index) is a middle ground between your working directory and the git repository. You can choose which changes  you want to include in your next commit.
+// Use the git add command to stage specific modifications.
+// working directory is where you make modifications to your files. You edit, create, or delete files.
+// git init . is to make your local repository a git repository
+// git add --all is to add all changes to the statging area.
+// git commit -m "XYZ" is to create a new commit with a specified commit message.
+// git push is used to upload local changes to a remote repository. Hence, Before using git push, you typically set up a remote repository (e.g., on GitHub, GitLab, or Bitbucket) where you want to send your changes.
+// git tag is used to create a tag in a Git repository.
+// git push --tags is used to push tags from your local Git repository to the remote repository.
+// git diff is used to see differences you made. You can scroll down by presssing enter. To quit, press q.
