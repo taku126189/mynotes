@@ -3,6 +3,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:mynotes4/constants/routes.dart'; // VS code automatically imports this for const loginRoute.
 import 'package:mynotes4/firebase_options.dart';
 import 'package:mynotes4/views/login_view.dart';
 import 'package:mynotes4/views/register_view.dart';
@@ -25,10 +26,10 @@ void main() async {
         const HomePage(), // By changing here, you can see both LoginView and RegistrationView.
     routes: {
       // named rountes
-      '/login/': (context) =>
+      loginRoute: (context) =>
           const LoginView(), // this returns the instance of loginview.
-      '/register/': (context) => const RegisterView(),
-      '/notes/': (context) => const NotesView(),
+      registerRoute: (context) => const RegisterView(),
+      noteRoute: (context) => const NotesView(),
     }, // routes are parameter. it's a map with keys being strings and values being functions. it returns a widget and the function takes buildcontext inside.
   ));
 }
@@ -121,7 +122,7 @@ class _NotesViewState extends State<NotesView> {
                   if (shouldLogout) {
                     await FirebaseAuth.instance.signOut();
                     Navigator.of(context).pushNamedAndRemoveUntil(
-                      '/login/',
+                      loginRoute,
                       (_) => false,
                     );
                   } // if the user presses cancel, it returns false, if the user presses logout, it returns true.

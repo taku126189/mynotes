@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 // import 'package:mynotes4/firebase_options.dart';
 import 'dart:developer' as devtools show log;
+
+import 'package:mynotes4/constants/routes.dart';
 // why print function isn't a good idea?
 // Writing to the console can slow down the app, especially if the logs are being written frequently. This can result in a noticeable decrease in app performance. In a production environment, it may be difficult to replicate the conditions that caused an issue, making it harder to debug the problem. Also, print statements can sometimes make the debugging process more difficult, as they can interfere with the normal operation of the app.
 
@@ -85,7 +87,7 @@ class _LoginViewState extends State<LoginView> {
                 );
                 // devtools.log(userCredential.toString()); // .toString is a function of userCredential.
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/notes/',
+                  noteRoute,
                   (route) => false,
                 );
               } on FirebaseAuthException catch (e) {
@@ -103,7 +105,7 @@ class _LoginViewState extends State<LoginView> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pushNamedAndRemoveUntil(
-                '/register/',
+                registerRoute,
                 (route) => false,
               );
             },
