@@ -2,6 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 // import 'package:mynotes4/firebase_options.dart';
+import 'dart:developer' as devtools show log;
+// why print function isn't a good idea?
+// Writing to the console can slow down the app, especially if the logs are being written frequently. This can result in a noticeable decrease in app performance. In a production environment, it may be difficult to replicate the conditions that caused an issue, making it harder to debug the problem. Also, print statements can sometimes make the debugging process more difficult, as they can interfere with the normal operation of the app.
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -75,17 +78,21 @@ class _LoginViewState extends State<LoginView> {
               // the try block does the work that you are saying it needs to be done.
               // should anything bad happened, it will go to catch statements that follow.
               try {
-                final userCredential =
-                    await FirebaseAuth.instance.signInWithEmailAndPassword(
+                // final userCredential =
+                await FirebaseAuth.instance.signInWithEmailAndPassword(
                   email: email,
                   password: password,
                 );
-                print(userCredential);
+                // devtools.log(userCredential.toString()); // .toString is a function of userCredential.
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/notes/',
+                  (route) => false,
+                );
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'user-not-found') {
-                  print('User not found');
+                  devtools.log('User not found');
                 } else if (e.code == 'wrong-password') {
-                  print('Wrong password');
+                  devtools.log('Wrong password');
                 }
               } // user registration is an asyncronous task which means that it is not going to be done immediately.
               // createUserWithEmailAndPassword is Future. So, it will calculate in the future, not now.

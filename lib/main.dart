@@ -12,6 +12,7 @@ import 'dart:developer' as devtools show log;
 // Hence, use as and show to limit the package you import and use functions you actually need.
 
 void main() async {
+  // the main function is not recompiled even if you did a hot reload. "recompile" refers to the process of rebuilding the application's source code into machine-readable code (such as native machine code or intermediate code) that can be executed on the target platform. This compilation process is necessary whenever changes are made to the source code of a Flutter app. When you make changes to your Flutter project, such as modifying Dart code, adding dependencies, or adjusting configuration files, you need to recompile the application to see the effects of those changes. The Flutter framework provides a hot reload feature, which allows you to see the results of your code changes quickly without restarting the entire application.
   WidgetsFlutterBinding.ensureInitialized();
 
   runApp(MaterialApp(
@@ -23,9 +24,11 @@ void main() async {
     home:
         const HomePage(), // By changing here, you can see both LoginView and RegistrationView.
     routes: {
+      // named rountes
       '/login/': (context) =>
           const LoginView(), // this returns the instance of loginview.
       '/register/': (context) => const RegisterView(),
+      '/notes/': (context) => const NotesView(),
     }, // routes are parameter. it's a map with keys being strings and values being functions. it returns a widget and the function takes buildcontext inside.
   ));
 }
@@ -122,6 +125,7 @@ class _NotesViewState extends State<NotesView> {
                       (_) => false,
                     );
                   } // if the user presses cancel, it returns false, if the user presses logout, it returns true.
+                // pushNamedAndRemoveUntil() As its name suggests, it pushes a routes on top of the screen. Named means named routes. AndRemoveUntil means if another screen is pushed on the top of the screen, the screen that were already on the top of the screen will be removed
               }
               // devtools.log(value.toString()); // log takes String so you need to covert value to String.
             },
