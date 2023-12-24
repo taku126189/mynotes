@@ -2,9 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 // import 'package:mynotes4/firebase_options.dart';
-import 'dart:developer' as devtools show log;
+// import 'dart:developer' as devtools show log;
 
 import 'package:mynotes4/constants/routes.dart';
+import 'package:mynotes4/utilities/show_error_dialog.dart';
 // why print function isn't a good idea?
 // Writing to the console can slow down the app, especially if the logs are being written frequently. This can result in a noticeable decrease in app performance. In a production environment, it may be difficult to replicate the conditions that caused an issue, making it harder to debug the problem. Also, print statements can sometimes make the debugging process more difficult, as they can interfere with the normal operation of the app.
 
@@ -87,16 +88,34 @@ class _LoginViewState extends State<LoginView> {
                 );
                 // devtools.log(userCredential.toString()); // .toString is a function of userCredential.
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                  noteRoute,
+                  notesRoute,
                   (route) => false,
                 );
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'user-not-found') {
-                  devtools.log('User not found');
+                  await showErrorDialog(
+                    context,
+                    'User not found',
+                  ); // context is already available since it is passed from Buildcontext at the beginning before scaffold.
                 } else if (e.code == 'wrong-password') {
-                  devtools.log('Wrong password');
+                  await showErrorDialog(
+                    context,
+                    'Wrong credentials',
+                  );
+                } else {
+                  await showErrorDialog(
+                    context,
+                    'Error: ${e.code}',
+                  );
                 }
-              } // user registration is an asyncronous task which means that it is not going to be done immediately.
+              } catch (e) {
+                await showErrorDialog(
+                  context,
+                  e.toString(),
+                );
+              } // if the error that the try and catch statement is not FirebaseAuthException, it goes into this catch block.
+
+              // user registration is an asyncronous task which means that it is not going to be done immediately.
               // createUserWithEmailAndPassword is Future. So, it will calculate in the future, not now.
             },
             child: const Text('Login'),

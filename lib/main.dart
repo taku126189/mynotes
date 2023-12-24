@@ -29,7 +29,7 @@ void main() async {
       loginRoute: (context) =>
           const LoginView(), // this returns the instance of loginview.
       registerRoute: (context) => const RegisterView(),
-      noteRoute: (context) => const NotesView(),
+      notesRoute: (context) => const NotesView(),
     }, // routes are parameter. it's a map with keys being strings and values being functions. it returns a widget and the function takes buildcontext inside.
   ));
 }
