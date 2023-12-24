@@ -16,22 +16,25 @@ void main() async {
   // the main function is not recompiled even if you did a hot reload. "recompile" refers to the process of rebuilding the application's source code into machine-readable code (such as native machine code or intermediate code) that can be executed on the target platform. This compilation process is necessary whenever changes are made to the source code of a Flutter app. When you make changes to your Flutter project, such as modifying Dart code, adding dependencies, or adjusting configuration files, you need to recompile the application to see the effects of those changes. The Flutter framework provides a hot reload feature, which allows you to see the results of your code changes quickly without restarting the entire application.
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(MaterialApp(
-    title: 'Flutter Demo',
-    theme: ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      useMaterial3: true,
+  runApp(
+    MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home:
+          const HomePage(), // By changing here, you can see both LoginView and RegistrationView.
+      routes: {
+        // named rountes. all routes parameters are registered here.
+        loginRoute: (context) =>
+            const LoginView(), // this returns the instance of loginview.
+        registerRoute: (context) => const RegisterView(),
+        notesRoute: (context) => const NotesView(),
+        verifyEmailRoute: (context) => const VerifyEmailView(),
+      }, // routes are parameter. it's a map with keys being strings and values being functions. it returns a widget and the function takes buildcontext inside.
     ),
-    home:
-        const HomePage(), // By changing here, you can see both LoginView and RegistrationView.
-    routes: {
-      // named rountes
-      loginRoute: (context) =>
-          const LoginView(), // this returns the instance of loginview.
-      registerRoute: (context) => const RegisterView(),
-      notesRoute: (context) => const NotesView(),
-    }, // routes are parameter. it's a map with keys being strings and values being functions. it returns a widget and the function takes buildcontext inside.
-  ));
+  );
 }
 
 class HomePage extends StatelessWidget {

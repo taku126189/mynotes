@@ -4,9 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 // import 'package:mynotes4/firebase_options.dart';
 
-import 'dart:developer' as devtools show log;
+// import 'dart:developer' as devtools show log;
 
 import 'package:mynotes4/constants/routes.dart';
+import 'package:mynotes4/utilities/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -74,22 +75,43 @@ class _RegisterViewState extends State<RegisterView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                final userCredential =
-                    await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                        // the user is registered in this link: https://console.firebase.google.com/u/0/project/mynotes4-flutter-takuyasaka/authentication/users
-                        email: email,
-                        password: password);
-                devtools.log(userCredential.toString());
+                await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                  // the user is registered in this link: https://console.firebase.google.com/u/0/project/mynotes4-flutter-takuyasaka/authentication/users
+                  email: email,
+                  password: password,
+                );
+                final user = FirebaseAuth.instance.currentUser;
+                await user?.sendEmailVerification();
+                Navigator.of(context).pushNamed(
+                    verifyEmailRoute); //  pushNamedAndRemoveUntil() is not used here because it replaces the window on the top of the screen. It is better that that verifyemailview is pushed on the top of the screen upon the user pressing the register button and the registerview remains under the verifyemailview because the user might put a wrong email address in the registerview.
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'weak-password') {
-                  devtools.log(
-                      'Weak password'); // if the error code is weak-password, Weak password is printed out in debug console.
+                  await showErrorDialog(
+                    context,
+                    'Weak password',
+                  ); // if the error code  is weak-password, Weak password is printed out in debug console.
                 } else if (e.code == 'email-already-in-use') {
                   // // if the error code is email-already-in-use, Email is already in use is printed out in debug console.
-                  devtools.log('Email is already in use');
+                  await showErrorDialog(
+                    context,
+                    'Email is already in use',
+                  );
                 } else if (e.code == 'invalid-email') {
-                  devtools.log('Invalid email');
+                  await showErrorDialog(
+                    context,
+                    'This is an invalid email address',
+                  );
+                } else {
+                  await showErrorDialog(
+                    context,
+                    'Error ${e.code}',
+                  );
                 }
+              } catch (e) {
+                await showErrorDialog(
+                  context,
+                  e.toString(),
+                );
               }
 
               // you need to handle weak password. print(e.code) allows you to see weak password error in debug console.
