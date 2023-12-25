@@ -1,10 +1,12 @@
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 // import 'package:mynotes4/firebase_options.dart';
 // import 'dart:developer' as devtools show log;
 
 import 'package:mynotes4/constants/routes.dart';
+import 'package:mynotes4/services/auth/auth_exceptions.dart';
+import 'package:mynotes4/services/auth/auth_service.dart';
 import 'package:mynotes4/utilities/show_error_dialog.dart';
 // why print function isn't a good idea?
 // Writing to the console can slow down the app, especially if the logs are being written frequently. This can result in a noticeable decrease in app performance. In a production environment, it may be difficult to replicate the conditions that caused an issue, making it harder to debug the problem. Also, print statements can sometimes make the debugging process more difficult, as they can interfere with the normal operation of the app.
@@ -81,13 +83,12 @@ class _LoginViewState extends State<LoginView> {
               // the try block does the work that you are saying it needs to be done.
               // should anything bad happened, it will go to catch statements that follow.
               try {
-                // final userCredential =
-                await FirebaseAuth.instance.signInWithEmailAndPassword(
+                await AuthService.firebase().logIn(
                   email: email,
                   password: password,
                 );
-                final user = FirebaseAuth.instance.currentUser;
-                if (user?.emailVerified ?? false) {
+                final user = AuthService.firebase().currentUser;
+                if (user?.isEmailVerified ?? false) {
                   // user's email is verified
                   Navigator.of(context).pushNamedAndRemoveUntil(
                     notesRoute,
@@ -101,29 +102,23 @@ class _LoginViewState extends State<LoginView> {
                   );
                 }
                 // devtools.log(userCredential.toString()); // .toString is a function of userCredential.
-              } on FirebaseAuthException catch (e) {
-                if (e.code == 'user-not-found') {
-                  await showErrorDialog(
-                    context,
-                    'User not found',
-                  ); // context is already available since it is passed from Buildcontext at the beginning before scaffold.
-                } else if (e.code == 'wrong-password') {
-                  await showErrorDialog(
-                    context,
-                    'Wrong credentials',
-                  );
-                } else {
-                  await showErrorDialog(
-                    context,
-                    'Error: ${e.code}',
-                  );
-                }
-              } catch (e) {
+              } on UserNotFoundAuthException {
                 await showErrorDialog(
                   context,
-                  e.toString(),
+                  'User not found',
                 );
-              } // if the error that the try and catch statement is not FirebaseAuthException, it goes into this catch block.
+              } on WrongPasswordAuthException {
+                await showErrorDialog(
+                  context,
+                  'Wrong credentials',
+                );
+              } on GenericAuthException {
+                await showErrorDialog(
+                  context,
+                  'Authentication error',
+                );
+              }
+              // if the error that the try and catch statement is not FirebaseAuthException, it goes into this catch block.
 
               // user registration is an asyncronous task which means that it is not going to be done immediately.
               // createUserWithEmailAndPassword is Future. So, it will calculate in the future, not now.

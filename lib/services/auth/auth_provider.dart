@@ -5,8 +5,10 @@
 import 'package:mynotes4/services/auth/auth_user.dart';
 
 abstract class AuthProvider {
-  // optionally returns the currently authenticated user
+  // you need to add firebase initialise to firebase auth provider.
+  Future<void> initialize();
 
+  // optionally returns the currently authenticated user
   AuthUser? get currentUser;
 
   // allow the user to log in

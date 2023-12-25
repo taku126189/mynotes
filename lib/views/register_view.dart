@@ -1,5 +1,5 @@
 // Registration view
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 // import 'package:mynotes4/firebase_options.dart';
@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 // import 'dart:developer' as devtools show log;
 
 import 'package:mynotes4/constants/routes.dart';
+import 'package:mynotes4/services/auth/auth_exceptions.dart';
+import 'package:mynotes4/services/auth/auth_service.dart';
 import 'package:mynotes4/utilities/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
@@ -75,49 +77,37 @@ class _RegisterViewState extends State<RegisterView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                  // the user is registered in this link: https://console.firebase.google.com/u/0/project/mynotes4-flutter-takuyasaka/authentication/users
+                await AuthService.firebase().createUser(
                   email: email,
                   password: password,
                 );
-                final user = FirebaseAuth.instance.currentUser;
-                await user?.sendEmailVerification();
+                AuthService.firebase().sendEmailVerification();
                 Navigator.of(context).pushNamed(
                     verifyEmailRoute); //  pushNamedAndRemoveUntil() is not used here because it replaces the window on the top of the screen. It is better that that verifyemailview is pushed on the top of the screen upon the user pressing the register button and the registerview remains under the verifyemailview because the user might put a wrong email address in the registerview.
-              } on FirebaseAuthException catch (e) {
-                if (e.code == 'weak-password') {
-                  await showErrorDialog(
-                    context,
-                    'Weak password',
-                  ); // if the error code  is weak-password, Weak password is printed out in debug console.
-                } else if (e.code == 'email-already-in-use') {
-                  // // if the error code is email-already-in-use, Email is already in use is printed out in debug console.
-                  await showErrorDialog(
-                    context,
-                    'Email is already in use',
-                  );
-                } else if (e.code == 'invalid-email') {
-                  await showErrorDialog(
-                    context,
-                    'This is an invalid email address',
-                  );
-                } else {
-                  await showErrorDialog(
-                    context,
-                    'Error ${e.code}',
-                  );
-                }
-              } catch (e) {
+              } on WeakPasswordAuthException {
                 await showErrorDialog(
                   context,
-                  e.toString(),
+                  'Weak password',
+                );
+              } on EmailAlreadyInUseAuthException {
+                await showErrorDialog(
+                  context,
+                  'Email is already in use',
+                );
+              } on InvalidEmailAuthException {
+                await showErrorDialog(
+                  context,
+                  'This is an invalid email address',
+                );
+              } on GenericAuthException {
+                await showErrorDialog(
+                  context,
+                  'Failed to register',
                 );
               }
-
-              // you need to handle weak password. print(e.code) allows you to see weak password error in debug console.
             }, // user registration is an asyncronous task which means that it is not going to be done immediately.
             // createUserWithEmailAndPassword is Future. So, it will calculate in the future, not now.
-            child: const Text('You wanna register?'),
+            child: const Text('Register'),
           ),
           TextButton(
             onPressed: () {
