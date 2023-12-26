@@ -10,11 +10,13 @@ class AuthUser {
   final bool isEmailVerified;
   // user.isEmailVerified makes more sense than saying user.emailVerified.
   // constructor.
-  const AuthUser(this.isEmailVerified);
+  const AuthUser({required this.isEmailVerified});
 
-  factory AuthUser.fromFirebase(User user) => AuthUser(user.emailVerified);
+  factory AuthUser.fromFirebase(User user) =>
+      AuthUser(isEmailVerified: user.emailVerified);
   // factory constructer is useful.
   // say if you want to object x from object y. obejct x can initialise itself and construct itself. Without factory constructor, you need to add a middle layer between object x and object y.
   // AuthUser(user.emailVerified) goes into const AuthUser(this.isEmailVerified);
   // it takes the value of emailVerified of the firebase user and places it into the AuthUser class. (like making a copy of the firebase user into AuthUser class so that it avoids directly exposing the firebase user to the ui.)
+  // you neet to put  const AuthUser({required this.isEmailVerified}); Otherwise, you need to put AuthUser(true) and it does not make sense to other programmers.
 }

@@ -6,7 +6,9 @@ import 'package:mynotes4/services/auth/firebase_auth_provider.dart';
 
 class AuthService implements AuthProvider {
   final AuthProvider provider;
-
+// dependency injection.
+// AuthService is dependent on AuthProvider. it is not just making an assumption that AuthProvider is firebase, it provides a facotry firebase. But it is not making the assumption that it is always locked to firebase authprovider
+// constructor (initializer) injects provider into it.
   const AuthService(this.provider);
 
 // add firebase factory to firebase authservice.
