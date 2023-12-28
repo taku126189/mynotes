@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:mynotes4/constants/routes.dart'; // VS code automatically imports this for const loginRoute.
 import 'package:mynotes4/services/auth/auth_service.dart';
 import 'package:mynotes4/views/login_view.dart';
-import 'package:mynotes4/views/notes_view.dart';
+import 'package:mynotes4/views/notes/new_note_view.dart';
+import 'package:mynotes4/views/notes/notes_view.dart';
 import 'package:mynotes4/views/register_view.dart';
 import 'package:mynotes4/views/verify_email_view.dart';
 // import 'dart:developer' as devtools show log;
@@ -31,6 +32,7 @@ void main() async {
         registerRoute: (context) => const RegisterView(),
         notesRoute: (context) => const NotesView(),
         verifyEmailRoute: (context) => const VerifyEmailView(),
+        newNoteRoute: (context) => const NewNoteView(),
       }, // routes are parameter. it's a map with keys being strings and values being functions. it returns a widget and the function takes buildcontext inside.
     ),
   );
