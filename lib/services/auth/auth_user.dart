@@ -7,13 +7,19 @@ import 'package:flutter/foundation.dart';
 // their internals are never going to be changed upon initialisation.
 // that is, if you code 'class MyAuthUser extends Auth User {const MyAuthUser(bool isEmailVerified) : super(isEmailVerified);}', you have to put const because it should be immutable.
 class AuthUser {
+  final String? email;
   final bool isEmailVerified;
   // user.isEmailVerified makes more sense than saying user.emailVerified.
   // constructor.
-  const AuthUser({required this.isEmailVerified});
+  const AuthUser({
+    required this.email,
+    required this.isEmailVerified,
+  });
 
-  factory AuthUser.fromFirebase(User user) =>
-      AuthUser(isEmailVerified: user.emailVerified);
+  factory AuthUser.fromFirebase(User user) => AuthUser(
+        email: user.email,
+        isEmailVerified: user.emailVerified,
+      );
   // factory constructer is useful.
   // say if you want to object x from object y. obejct x can initialise itself and construct itself. Without factory constructor, you need to add a middle layer between object x and object y.
   // AuthUser(user.emailVerified) goes into const AuthUser(this.isEmailVerified);

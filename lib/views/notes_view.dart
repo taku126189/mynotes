@@ -1,9 +1,11 @@
 // main UI that the user who logged in can see.
 // import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes4/constants/routes.dart';
 import 'package:mynotes4/enums/menu_action.dart';
 import 'package:mynotes4/services/auth/auth_service.dart';
+import 'package:mynotes4/services/crud/notes_service.dart';
 
 class NotesView extends StatefulWidget {
   const NotesView({super.key});
@@ -13,6 +15,27 @@ class NotesView extends StatefulWidget {
 }
 
 class _NotesViewState extends State<NotesView> {
+  // notes view grab hold of an instance of notesservice
+  late final NotesService _notesService;
+
+  String get userEmail => AuthService.firebase().currentUser!.email!;
+
+// open DB
+// Upon going to notesview, our database should be open. that's why notesview is stateful widget
+  @override
+  void initState() {
+    _notesService =
+        NotesService(); // _notesservice is an instance of notesservice
+    super.initState();
+  }
+
+// upon the note view disposal (close), we are going to close DB
+  @override
+  void dispose() {
+    _notesService.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,6 +70,29 @@ class _NotesViewState extends State<NotesView> {
           ), // upon selected (onSelected), it returns value for us.
         ], // actions is a list of widgets.
       ),
+      // after getting the user, we need to grab all notes the user has ever created
+      body: FutureBuilder(
+          future: _notesService.getOrCreateUser(email: userEmail),
+          builder: (context, snapshot) {
+            // you can use command . to get VS code to help us with missing case clauses.
+            // if getting the user or creating the user has been completed, return text in case ConnectionState.done:
+            switch (snapshot.connectionState) {
+              case ConnectionState.done:
+                return StreamBuilder(
+                  stream: _notesService.allNotes,
+                  builder: (context, snapshot) {
+                    switch (snapshot.connectionState) {
+                      case ConnectionState.waiting:
+                        return const Text('Waiting for all notes...');
+                      default:
+                        return const CircularProgressIndicator();
+                    }
+                  },
+                );
+              default:
+                return const CircularProgressIndicator();
+            }
+          }),
     );
   }
 }
