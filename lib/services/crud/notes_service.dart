@@ -32,7 +32,15 @@ class NotesService {
 // _sharedInstance is a private initializer (private constructor)
 // no one from outside can instantiate this class
   static final NotesService _shared = NotesService._sharedInstance();
-  NotesService._sharedInstance();
+  NotesService._sharedInstance() {
+    _notesStreamController = StreamController<List<DatabaseNote>>.broadcast(
+      // onListen is a callback. It is called whenever a new lister subscribes to our notes stream controller's stream.
+      // upon this happening, we need to ensure that note stream controller's stream is populated (it is filled with the necessary values) with all the values we have currently read from the database (_notes)
+      onListen: () {
+        _notesStreamController.sink.add(_notes);
+      },
+    );
+  }
   factory NotesService() =>
       _shared; // factory constructor to provide access to the instance
 
@@ -42,8 +50,7 @@ class NotesService {
 // the UI is going to listen to changes that have been made in the stream controller.
 // everything is read from the outside through _noteStreamController. _notes is not exposed to the outside
 
-  final _notesStreamController =
-      StreamController<List<DatabaseNote>>.broadcast();
+  late final StreamController<List<DatabaseNote>> _notesStreamController;
 // we are going to create a function that reads all notes from the database and place it in _notes internally and _notesStreamController, which is going to be read externally
 
   // Stream is going to subscribe itself to StreamController. StreamController contains _notes.
