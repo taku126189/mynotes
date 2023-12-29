@@ -1,6 +1,6 @@
 // main UI that the user who logged in can see.
 // import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes4/constants/routes.dart';
 import 'package:mynotes4/enums/menu_action.dart';
@@ -45,6 +45,8 @@ class _NotesViewState extends State<NotesView> {
           IconButton(
             onPressed: () {
               Navigator.of(context).pushNamed(newNoteRoute);
+              // you want the user to get back to the main ui after the new note view page.
+              // so you should not use pushNamedAndRemoveUntil
             },
             icon: const Icon(Icons.add),
           ),
@@ -89,6 +91,7 @@ class _NotesViewState extends State<NotesView> {
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.waiting:
+                      case ConnectionState.active:
                         return const Text('Waiting for all notes...');
                       default: // this will be executed if cases above here are not executed.
                         return const CircularProgressIndicator();
