@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:mynotes4/services/auth/auth_service.dart';
 import 'package:mynotes4/services/crud/notes_service.dart';
+import 'package:mynotes4/utilities/generics/get_arguments.dart';
 
-class NewNoteView extends StatefulWidget {
-  const NewNoteView({super.key});
+class CreateUpdateNoteView extends StatefulWidget {
+  const CreateUpdateNoteView({super.key});
 
   @override
-  State<NewNoteView> createState() => _NewNoteViewState();
+  State<CreateUpdateNoteView> createState() => _CreateUpdateNoteViewState();
 }
 
-class _NewNoteViewState extends State<NewNoteView> {
+class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
   DatabaseNote? _note;
   late final NotesService _notesService;
   late final TextEditingController _textController;
@@ -44,13 +45,25 @@ class _NewNoteViewState extends State<NewNoteView> {
 
 // if we have create the note, we don't have to create it again.
 // if we haven't created the note, go to the note service and say create the note and then get the note back to us
-  Future<DatabaseNote> createNewNote() async {
+  Future<DatabaseNote> createOrGetExistingNote(BuildContext context) async {
+// getArgument returns optional object of the type, in this case, DatabaseNote
+// Either the user has a note so they have tapped on an existing note and came here
+// or you don't meaning that the user tapped the plus button and came here
+
+    final widgetNote = context.getArgument<DatabaseNote>();
+// the user tapped an existing note
+    if (widgetNote != null) {
+      _note = widgetNote;
+      _textController.text = widgetNote.text;
+      return widgetNote;
+    }
+
     final existingNote = _note;
     if (existingNote != null) {
       return existingNote;
     }
 
-    // createNote requires an owner
+    // createNote requires an owne r
     // upon going to the main UI, the notes view creates a new user in the database
     // you've logged in the firebase, you go to the notes view, and then the notes view creates the new user.
     // so we need to retrieve it from the database
@@ -58,7 +71,10 @@ class _NewNoteViewState extends State<NewNoteView> {
     final currentUser = AuthService.firebase().currentUser!;
     final email = currentUser.email!;
     final owner = await _notesService.getUser(email: email);
-    return await _notesService.createNote(owner: owner);
+    final newNote = await _notesService.createNote(owner: owner);
+// Store the note
+    _note = newNote;
+    return newNote;
   }
 
 // when the user goes to the new notes view and not enter any text (when the notes view is diposed), delete the note
@@ -96,13 +112,13 @@ class _NewNoteViewState extends State<NewNoteView> {
         ),
         // when the new note has been created in the database,
         body: FutureBuilder(
-          future: createNewNote(),
+          future: createOrGetExistingNote(context),
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.done:
                 // assign   DatabaseNote? _note; to our note variable
                 // this is how we get notes from snapshot
-                _note = snapshot.data as DatabaseNote;
+                // _note = snapshot.data as DatabaseNote;
                 _setupTextControllerListener();
                 // TextField send a message to an object called a text editing controller and say hey my text has been changed
                 return TextField(
