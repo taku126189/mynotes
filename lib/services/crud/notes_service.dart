@@ -16,6 +16,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart'; // this is imported for immutable
+import 'package:mynotes4/extensions/list/filter.dart';
 import 'package:mynotes4/services/crud/crud_exceptions.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
@@ -27,6 +28,11 @@ class NotesService {
   // this is cache, where you cache.
   List<DatabaseNote> _notes = [];
 // when this list is changed, you neet to tell stream hey sometthing is added
+
+// the current user should be saved somwhere in the notes service
+// the notes service says okay here's the current user, whenever I return all my notes to the call site, using allNotes functionality (Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;), I need to filter out the notes inside that list to make sure only relevant notes that were created by that current user are returned from this Stream
+// Let's define the user. the user should be set before reading all notes
+  DatabaseUser? _user;
 
 // make NotesService a singleton
 // _sharedInstance is a private initializer (private constructor)
@@ -56,17 +62,41 @@ class NotesService {
   // Stream is going to subscribe itself to StreamController. StreamController contains _notes.
   // So, Stream retrieves all notes from StreamController.
   // getter for getting all notes
-  Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
+  // allNotes should filter out all notes depending on the user
+  Stream<List<DatabaseNote>> get allNotes =>
+      _notesStreamController.stream.filter((note) {
+        // this is our expectation from the caller.
+        // make sure that the current user was set when you call this function, so bool setAsCurrentUser = true, needs to be true
+
+        final currentUser = _user;
+        if (currentUser != null) {
+          return note.userId == currentUser.id;
+        } else {
+          throw UserShouldBeSetBeforeReadingAllNotes();
+        }
+      });
 
 // we need to get the user. if the user does not exist, we need to create the user.
 // if the user does not exist, getUser throws CouldNotFindUser, which is going to be a cue.
-  Future<DatabaseUser> getOrCreateUser({required String email}) async {
+  Future<DatabaseUser> getOrCreateUser({
+    required String email,
+    bool setAsCurrentUser = true,
+  }) async {
     await _ensureDbIsOpen();
     try {
       final user = await getUser(email: email);
+      if (setAsCurrentUser) {
+        // if we could retrieve that user from the database and the boolean parameter is true,
+        // we set our own user to this user
+        _user = user;
+      }
       return user;
     } on CouldNotFindUser {
       final createdUser = await createUser(email: email);
+      // if we have to create the user and the parameter is true, then we set the current user (_user) to createdUser
+      if (setAsCurrentUser) {
+        _user = createdUser;
+      }
       return createdUser;
     } catch (e) {
       rethrow; // this catch statement makes code easier to debug
@@ -97,10 +127,15 @@ class NotesService {
     await getNote(id: note.id);
 
 // we're updating noteTable
-    final updatesCount = await db.update(noteTable, {
-      textColumn: text,
-      isSyncedWithCloudColumn: 0,
-    });
+    final updatesCount = await db.update(
+      noteTable,
+      {
+        textColumn: text,
+        isSyncedWithCloudColumn: 0,
+      },
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
 
 // we make sure note exists in the database, so updatesCount should not be 0
 // new refreshed note is getNote
