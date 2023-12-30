@@ -6,6 +6,8 @@ import 'package:mynotes4/constants/routes.dart';
 import 'package:mynotes4/enums/menu_action.dart';
 import 'package:mynotes4/services/auth/auth_service.dart';
 import 'package:mynotes4/services/crud/notes_service.dart';
+import 'package:mynotes4/utilities/dialogs/logout_dialog.dart';
+import 'package:mynotes4/views/notes/notes_list_view.dart';
 
 class NotesView extends StatefulWidget {
   const NotesView({super.key});
@@ -87,19 +89,10 @@ class _NotesViewState extends State<NotesView> {
                       case ConnectionState.active:
                         if (snapshot.hasData) {
                           final allNotes = snapshot.data as List<DatabaseNote>;
-
-                          return ListView.builder(
-                            itemCount: allNotes.length,
-                            itemBuilder: (context, index) {
-                              final note = allNotes[index];
-                              return ListTile(
-                                title: Text(
-                                  note.text,
-                                  maxLines: 1,
-                                  softWrap: true,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              );
+                          return NotesListView(
+                            notes: allNotes,
+                            onDeleteNote: (note) async {
+                              await _notesService.deleteNote(id: note.id);
                             },
                           );
                         } else {
@@ -118,38 +111,43 @@ class _NotesViewState extends State<NotesView> {
   }
 }
 
-Future<bool> showLogOutDialog(BuildContext context) {
-  return showDialog<bool>(
-          // showDialog returns a future of optional value. In other words, it returns a future, and it's optional.
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              // AlertDialog is to create a dialog. showDialog is to display a dialog.
-              title: const Text('Sign out'),
-              content: const Text('Are you sure you want to sign out?'),
-              actions: [
-                // actions is a list of TextButtons typically.
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(
-                        false); // to close the dialog and pass a boolean value ('false' for cancel and 'true' for logout) to the future.
-                    // Navigator is a class that manages a stack of routes and provides methods to navigate between them. A route represents a screen or page in your app, and the stack maintains the order in which screens are displayed.
-                  }, // The pop method is used to remove the topmost route from the navigation stack. It effectively closes the current screen or dialog and returns control to the previous screen.
-                  child: const Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(true);
-                  },
-                  child: const Text('Log out'),
-                )
-              ],
-            );
-          })
-      .then((value) =>
-          value ??
-          false); // .then says if showDialog cannot return bool, i am going to return false; otherwise return the value of showDialog.
-  // users may tap outside of the dialog to dissmiss it. This is why showDialogue says I might not be able to return the value that I promised. So, .then is used.
-} // dialog is a small popup window that usually displays in the centre of screen.
+
+
+
+
+
+// Future<bool> showLogOutDialog(BuildContext context) {
+//   return showDialog<bool>(
+//           // showDialog returns a future of optional value. In other words, it returns a future, and it's optional.
+//           context: context,
+//           builder: (context) {
+//             return AlertDialog(
+//               // AlertDialog is to create a dialog. showDialog is to display a dialog.
+//               title: const Text('Sign out'),
+//               content: const Text('Are you sure you want to sign out?'),
+//               actions: [
+//                 // actions is a list of TextButtons typically.
+//                 TextButton(
+//                   onPressed: () {
+//                     Navigator.of(context).pop(
+//                         false); // to close the dialog and pass a boolean value ('false' for cancel and 'true' for logout) to the future.
+//                     // Navigator is a class that manages a stack of routes and provides methods to navigate between them. A route represents a screen or page in your app, and the stack maintains the order in which screens are displayed.
+//                   }, // The pop method is used to remove the topmost route from the navigation stack. It effectively closes the current screen or dialog and returns control to the previous screen.
+//                   child: const Text('Cancel'),
+//                 ),
+//                 TextButton(
+//                   onPressed: () {
+//                     Navigator.of(context).pop(true);
+//                   },
+//                   child: const Text('Log out'),
+//                 )
+//               ],
+//             );
+//           })
+//       .then((value) =>
+//           value ??
+//           false); // .then says if showDialog cannot return bool, i am going to return false; otherwise return the value of showDialog.
+//   // users may tap outside of the dialog to dissmiss it. This is why showDialogue says I might not be able to return the value that I promised. So, .then is used.
+// } // dialog is a small popup window that usually displays in the centre of screen.
 // In this case, you need the user to select either they want to log out or remain logged in.
 // Hence, future boolean is suited for this.

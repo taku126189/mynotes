@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:mynotes4/constants/routes.dart';
 import 'package:mynotes4/services/auth/auth_exceptions.dart';
 import 'package:mynotes4/services/auth/auth_service.dart';
-import 'package:mynotes4/utilities/show_error_dialog.dart';
+import 'package:mynotes4/utilities/dialogs/error_dialog.dart';
 // why print function isn't a good idea?
 // Writing to the console can slow down the app, especially if the logs are being written frequently. This can result in a noticeable decrease in app performance. In a production environment, it may be difficult to replicate the conditions that caused an issue, making it harder to debug the problem. Also, print statements can sometimes make the debugging process more difficult, as they can interfere with the normal operation of the app.
 
