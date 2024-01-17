@@ -20,7 +20,7 @@ class _NotesViewState extends State<NotesView> {
   // notes view grab hold of an instance of notesservice
   late final NotesService _notesService;
 
-  String get userEmail => AuthService.firebase().currentUser!.email!;
+  String get userEmail => AuthService.firebase().currentUser!.email;
 
 // open DB
 // Upon going to notesview, our database should be open. that's why notesview is stateful widget

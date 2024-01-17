@@ -69,7 +69,7 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
     // so we need to retrieve it from the database
     // ! expects that the result of uthService.firebase().currentUser is non-nullable.
     final currentUser = AuthService.firebase().currentUser!;
-    final email = currentUser.email!;
+    final email = currentUser.email;
     final owner = await _notesService.getUser(email: email);
     final newNote = await _notesService.createNote(owner: owner);
 // Store the note
